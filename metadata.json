@@ -1,0 +1,6 @@
+{
+  "name": "哈曼外贸工具",
+  "description": "哈曼外贸专用 Proforma Invoice (PI) 账单生成器。支持产品库多选勾选、规格参数智能垂直对齐、实时总金额/物流重容体积计算、AI 乱序录入，并支持一键导出 Excel、图片 (PNG) 及高清晰度 A4 PDF 账单。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
