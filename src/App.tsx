@@ -692,23 +692,7 @@ export default function App() {
   };
 
   const getCountryHsCode = (baseHsCode: string, country: string): string => {
-    const cleanBase = (baseHsCode || '7326909000').replace(/[^0-9]/g, '');
-    const mapping = COUNTRY_HS_CODE_MAPPING[country];
-    if (mapping) {
-      if (mapping[cleanBase]) return mapping[cleanBase];
-      if (mapping['default']) return mapping['default'];
-    }
-    // Fallback logic
-    if (country === 'Germany') {
-      return cleanBase.slice(0, 4) + '.' + cleanBase.slice(4, 8) + '.10';
-    } else if (country === 'United Kingdom') {
-      return cleanBase.slice(0, 4) + '.' + cleanBase.slice(4, 8) + '.00';
-    } else if (country === 'USA') {
-      return cleanBase.slice(0, 4) + '.' + cleanBase.slice(4, 6) + '.' + cleanBase.slice(6, 10);
-    } else if (country === 'France') {
-      return cleanBase.slice(0, 4) + '.' + cleanBase.slice(4, 8) + '.15';
-    }
-    return baseHsCode;
+    return '7326909000';
   };
 
   // Format currency helper (Requirement 4)
@@ -1799,14 +1783,14 @@ HS CODE使用默认的7326909000即可。
                     {/* Destination Country for compliance */}
                     <div>
                       <span className="block font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                        🌍 1. 出口目的国 (Destination Country - HS Code Compliant):
+                        1. 出口目的国 (Destination Country - HS Code Compliant):
                       </span>
                       <div className="grid grid-cols-2 gap-1.5">
                         {[
-                          { id: 'Germany', name: '德国 Germany', flag: '🇩🇪', hs: '7326.90.90.10' },
-                          { id: 'United Kingdom', name: '英国 UK', flag: '🇬🇧', hs: '7326.90.90.00' },
-                          { id: 'USA', name: '美国 USA', flag: '🇺🇸', hs: '7326.90.86.88' },
-                          { id: 'France', name: '法国 France', flag: '🇫🇷', hs: '7326.90.90.15' }
+                          { id: 'Germany', name: '德国 Germany', flag: '🇩🇪', hs: '7326909000' },
+                          { id: 'United Kingdom', name: '英国 UK', flag: '🇬🇧', hs: '7326909000' },
+                          { id: 'USA', name: '美国 USA', flag: '🇺🇸', hs: '7326909000' },
+                          { id: 'France', name: '法国 France', flag: '🇫🇷', hs: '7326909000' }
                         ].map(c => {
                           const isSelected = destinationCountry === c.id;
                           return (
@@ -1835,7 +1819,7 @@ HS CODE使用默认的7326909000即可。
                     {/* Export Currency selector */}
                     <div>
                       <span className="block font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                        💱 2. 结算货种 (Export Billing Currency):
+                        2. 结算货种 (Export Billing Currency):
                       </span>
                       <div className="grid grid-cols-3 gap-1.5">
                         {[
@@ -1865,7 +1849,7 @@ HS CODE使用默认的7326909000即可。
                     {/* Trade Terms (Incoterms) selector */}
                     <div>
                       <span className="block font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                        🌐 3. 国际贸易条款 (Trade Terms / Incoterms):
+                        3. 国际贸易条款 (Trade Terms / Incoterms):
                       </span>
                       <div className="grid grid-cols-4 gap-1.5">
                         {[
