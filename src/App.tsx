@@ -109,6 +109,17 @@ const DEFAULT_CUSTOMERS: CrmCustomer[] = [
 
 const currencySymbols: Record<string, string> = { USD: '$', GBP: '£', EUR: '€' };
 
+const tradeTermLabels: Record<string, { zh: string; en: string }> = {
+  FOB: { zh: '离岸合计 TOTAL FOB', en: 'TOTAL FOB' },
+  EXW: { zh: '出厂合计 TOTAL EXW', en: 'TOTAL EXW' },
+  CIF: { zh: '到岸合计 TOTAL CIF', en: 'TOTAL CIF' },
+  CFR: { zh: '成本加运费 TOTAL CFR', en: 'TOTAL CFR' },
+  DDP: { zh: '完税交货 TOTAL DDP', en: 'TOTAL DDP' },
+  DAP: { zh: '目的地交货 TOTAL DAP', en: 'TOTAL DAP' },
+  FCA: { zh: '货交承运人 TOTAL FCA', en: 'TOTAL FCA' },
+  CPT: { zh: '运至合计 TOTAL CPT', en: 'TOTAL CPT' }
+};
+
 const DEFAULT_PROFILES: CrmProfile[] = [
   {
     id: 'p1',
@@ -385,6 +396,11 @@ export default function App() {
     return (localStorage.getItem('haman_currency') as 'USD' | 'GBP' | 'EUR') || 'USD';
   });
 
+  // Dynamic Trade Term (Incoterms) selection (FOB, EXW, CIF, etc.)
+  const [tradeTerm, setTradeTerm] = useState<string>(() => {
+    return localStorage.getItem('haman_trade_term') || 'FOB';
+  });
+
   // Destination Country Compliance state (Requirement 3)
   const [destinationCountry, setDestinationCountry] = useState<string>(() => {
     return localStorage.getItem('haman_destination_country') || 'USA';
@@ -542,6 +558,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('haman_currency', currency);
   }, [currency]);
+
+  useEffect(() => {
+    localStorage.setItem('haman_trade_term', tradeTerm);
+  }, [tradeTerm]);
 
   useEffect(() => {
     localStorage.setItem('haman_shipping_marks', shippingMarks);
@@ -1538,7 +1558,7 @@ HS CODE使用默认的7326909000即可。
                               />
                             </div>
                             <div>
-                              <span className="text-slate-500 font-medium block">FOB 单价 (USD)</span>
+                              <span className="text-slate-500 font-medium block">{tradeTerm} 单价 ({currency})</span>
                               <input
                                 type="number"
                                 step="0.01"
@@ -1836,6 +1856,42 @@ HS CODE使用默认的7326909000即可。
                             >
                               <span className="text-lg font-black leading-none">{curr.symbol}</span>
                               <span className="text-[9px] uppercase tracking-wider">{curr.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Trade Terms (Incoterms) selector */}
+                    <div>
+                      <span className="block font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                        🌐 3. 国际贸易条款 (Trade Terms / Incoterms):
+                      </span>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[
+                          { id: 'FOB', name: '离岸 FOB', desc: 'Free On Board' },
+                          { id: 'EXW', name: '出厂 EXW', desc: 'Ex Works' },
+                          { id: 'CIF', name: '到岸 CIF', desc: 'Cost Insurance Freight' },
+                          { id: 'CFR', name: '运费 CFR', desc: 'Cost & Freight' },
+                          { id: 'DDP', name: '完税 DDP', desc: 'Delivered Duty Paid' },
+                          { id: 'DAP', name: '交货 DAP', desc: 'Delivered At Place' },
+                          { id: 'FCA', name: '承运 FCA', desc: 'Free Carrier' },
+                          { id: 'CPT', name: '运至 CPT', desc: 'Carriage Paid To' }
+                        ].map(term => {
+                          const isSelected = tradeTerm === term.id;
+                          return (
+                            <button
+                              key={term.id}
+                              onClick={() => setTradeTerm(term.id)}
+                              title={term.desc}
+                              className={`p-1.5 rounded-lg border text-center transition-all cursor-pointer flex flex-col justify-center items-center gap-0.5 ${
+                                isSelected 
+                                  ? 'border-blue-600 bg-blue-50/50 ring-1 ring-blue-500 font-bold text-blue-700' 
+                                  : 'border-slate-200 bg-white hover:border-slate-400 text-slate-600'
+                              }`}
+                            >
+                              <span className="text-xs font-black leading-none">{term.id}</span>
+                              <span className="text-[8.5px] tracking-tight">{term.name}</span>
                             </button>
                           );
                         })}
@@ -2555,7 +2611,7 @@ HS CODE使用默认的7326909000即可。
                     <th style={{ width: '10%' }} className="p-1.5 border-r border-black">{language === 'zh' ? '净重/毛重 N.W/G.W' : 'N.W/G.W'}</th>
                     <th style={{ width: '8%' }} className="p-1.5 border-r border-black">{language === 'zh' ? '海关编码 HS code' : 'HS code'}</th>
                     <th style={{ width: '6%' }} className="p-1.5 border-r border-black">{language === 'zh' ? '数量 Qty' : 'Qty'}</th>
-                    <th style={{ width: '10%' }} className="p-1.5 border-r border-black">{language === 'zh' ? `单价 FOB ${currency}` : `FOB ${currency}`}</th>
+                    <th style={{ width: '10%' }} className="p-1.5 border-r border-black">{language === 'zh' ? `单价 ${tradeTerm} ${currency}` : `${tradeTerm} ${currency}`}</th>
                     <th style={{ width: '10%' }} className="p-1.5">{language === 'zh' ? '合计 Total' : 'Total'}</th>
                   </tr>
                 </thead>
@@ -2728,7 +2784,9 @@ HS CODE使用默认的7326909000即可。
                   <tr className="border-t border-b-2 border-black font-extrabold bg-slate-100">
                     <td colSpan={isExporting ? 6 : 7} className="border-r border-black grand-total-spacer"></td>
                     <td colSpan={2} className="text-right p-2.5 uppercase text-xs tracking-wide border-r border-black pr-3">
-                      {language === 'zh' ? `离岸合计 TOTAL FOB ${currency}:` : `TOTAL FOB ${currency}:`}
+                      {language === 'zh' 
+                        ? `${tradeTermLabels[tradeTerm]?.zh || `合计 TOTAL ${tradeTerm}`} ${currency}:` 
+                        : `${tradeTermLabels[tradeTerm]?.en || `TOTAL ${tradeTerm}`} ${currency}:`}
                     </td>
                     <td className="text-center p-2.5 bg-yellow-50 text-xs font-black text-slate-950 font-mono">
                       {formatCurrency(grandTotal)}
